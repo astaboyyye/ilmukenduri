@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kenduri RSVP — Azman &amp; Nurul</title>
+<style>
+  :root {
+    --bg: #0e0c0a;
+    --card: #161310;
+    --card-2: #1c1815;
+    --line: #2e2822;
+    --line-soft: #241f1b;
+    --ink: #efe6d8;
+    --ink-dim: #a3947f;
+    --ink-faint: #6e6152;
+    --hijau: #7fb069;
+    --merah: #c96f5e;
+    --emas: #d3a550;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 0 20px 72px; }
+
+  /* ── Masthead ─────────────────────────────── */
+  header { padding: 44px 0 30px; border-bottom: 1px solid var(--line); }
+  .dateline {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 26px;
+  }
+  .dateline b { color: var(--emas); font-weight: 600; }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(38px, 9vw, 52px);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+  h1 em { font-style: italic; color: var(--emas); }
+  .invite {
+    margin-top: 14px; color: var(--ink-dim); font-size: 15px; max-width: 44ch;
+  }
+  .invite strong { color: var(--ink); font-weight: 600; }
+
+  /* ── Section chrome ───────────────────────── */
+  section { padding: 34px 0 6px; }
+  .rule-head {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 22px;
+  }
+  .rule-head::before, .rule-head::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .rule-head span {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--ink-faint); white-space: nowrap;
+  }
+  .rule-head b { color: var(--ink-dim); font-weight: 500; }
+
+  /* ── Form ─────────────────────────────────── */
+  .row { margin-bottom: 24px; }
+  .row-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px;
+    display: flex; justify-content: space-between;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 21px;
+    padding: 8px 2px 10px;
+    outline: none;
+    border-radius: 0;
+    transition: border-color .25s;
+  }
+  input[type="text"]::placeholder { color: var(--ink-faint); font-style: italic; }
+  input[type="text"]:focus { border-color: var(--emas); }
+
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duo button {
+    padding: 18px 12px 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    font-family: var(--serif);
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: border-color .2s, color .2s, background .2s, transform .25s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .duo button small {
+    display: block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .18em; text-transform: uppercase; margin-top: 5px; color: var(--ink-faint);
+  }
+  .duo button.sel-hadir {
+    border-color: var(--hijau); color: var(--ink); background: var(--card-2);
+    transform: translateY(-2px);
+  }
+  .duo button.sel-hadir small { color: var(--hijau); }
+  .duo button.sel-tidak {
+    border-color: var(--merah); color: var(--ink); background: var(--card-2);
+    transform: translateY(-2px);
+  }
+  .duo button.sel-tidak small { color: var(--merah); }
+
+  .pax { display: flex; align-items: center; gap: 18px; }
+  .pax button {
+    width: 48px; height: 48px;
+    background: var(--card); border: 1px solid var(--line); color: var(--ink-dim);
+    font-family: var(--mono); font-size: 20px; cursor: pointer; border-radius: 2px;
+    transition: border-color .15s, color .15s;
+  }
+  .pax button:hover { border-color: var(--emas); color: var(--ink); }
+  .pax .n {
+    font-family: var(--serif); font-size: 40px; min-width: 70px; text-align: center;
+    font-variant-numeric: tabular-nums;
+    transition: transform .2s cubic-bezier(.2,.9,.3,1.4);
+  }
+  .pax .n.tick { transform: scale(1.12); }
+  .pax .u { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: .14em; }
+
+  .hantar {
+    width: 100%; padding: 17px;
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 2px;
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    letter-spacing: .24em; text-transform: uppercase;
+    cursor: pointer;
+    transition: transform .15s cubic-bezier(.2,.9,.3,1.3), background .2s;
+  }
+  .hantar:hover { background: #fff; }
+  .hantar:active { transform: scale(.98); }
+  .ralat {
+    font-family: var(--mono); font-size: 12px; color: var(--merah);
+    margin-top: 12px; min-height: 16px;
+  }
+
+  /* ── Guest list ───────────────────────────── */
+  .senarai { border-top: 1px solid var(--line); }
+  .tamu {
+    display: grid;
+    grid-template-columns: 46px 1fr auto;
+    gap: 14px; align-items: center;
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .tamu.masuk { animation: turun .55s cubic-bezier(.2,.9,.25,1); }
+  @keyframes turun {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .nombor {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-faint);
+  }
+  .siapa .nama { font-family: var(--serif); font-size: 18px; }
+  .siapa .nota {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    letter-spacing: .06em; margin-top: 2px;
+  }
+  .jawab {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .18em; padding: 6px 12px; border-radius: 999px;
+  }
+  .jawab.hadir { color: var(--hijau); border: 1px solid rgba(127,176,105,.4); }
+  .jawab.tidak { color: var(--merah); border: 1px solid rgba(201,111,94,.4); }
+
+  /* ── Summary ──────────────────────────────── */
+  .jumlah { display: flex; align-items: baseline; gap: 16px; }
+  .jumlah .angka {
+    font-family: var(--serif); font-size: clamp(72px, 18vw, 104px);
+    line-height: .9; color: var(--emas); font-variant-numeric: tabular-nums;
+    transition: transform .22s cubic-bezier(.2,.9,.3,1.4);
+  }
+  .jumlah .angka.lonjak { transform: scale(1.06); }
+  .jumlah .kata { color: var(--ink-dim); font-size: 14px; max-width: 16ch; }
+  .pecahan {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 26px;
+  }
+  .kotak {
+    background: var(--card); border: 1px solid var(--line); border-radius: 2px;
+    padding: 14px 16px; display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .kotak .bil { font-family: var(--serif); font-size: 26px; font-variant-numeric: tabular-nums; }
+  .kotak.h .bil { color: var(--hijau); }
+  .kotak.t .bil { color: var(--merah); }
+  .kotak .p {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .nota-kaki {
+    margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    display: flex; justify-content: space-between; letter-spacing: .08em;
+  }
+
+  /* ── Reveal on load ───────────────────────── */
+  .reveal { opacity: 0; transform: translateY(20px);
+    transition: opacity .7s cubic-bezier(.2,.8,.25,1), transform .7s cubic-bezier(.2,.8,.25,1); }
+  .reveal.papar { opacity: 1; transform: none; }
+
+  @media (max-width: 480px) {
+    .duo { gap: 8px; }
+    .duo button { font-size: 16px; padding: 15px 10px 13px; }
+    .pax { gap: 12px; }
+    .kotak { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="reveal">
+    <div class="dateline"><span>Sabtu · 12 Dis 2026</span><span><b>Dihadirkan</b> · 12:30 TPH</span></div>
+    <h1>Jemputan <em>Kenduri</em><br>Azman &amp; Nurul</h1>
+    <p class="invite">Walimatul Urus di <strong>No. 14, Kampung Sungai Pisang, Gombak</strong>. Sila jawab di bawah — satu borang, tiada log masuk.</p>
+  </header>
+
+  <section id="borang" class="reveal">
+    <div class="rule-head"><span><b>01</b> — Borang Jawapan</span></div>
+    <div class="row">
+      <div class="row-label"><span>Nama Penuh</span></div>
+      <input type="text" id="nama" placeholder="Tulis nama anda di sini" autocomplete="name">
+    </div>
+    <div class="row">
+      <div class="row-label"><span>Jawapan Anda</span></div>
+      <div class="duo">
+        <button type="button" id="bHadir" onclick="pilih('hadir')">Hadir, insyaAllah<small>Yes · coming</small></button>
+        <button type="button" id="bTidak" onclick="pilih('tidak')">Tidak dapat hadir<small>No · regret</small></button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span>Bilangan Hadir</span></div>
+      <div class="pax">
+        <button type="button" onclick="langkah(-1)">−</button>
+        <div class="n" id="bilang">1</div>
+        <button type="button" onclick="langkah(1)">+</button>
+        <div class="u">ORANG</div>
+      </div>
+    </div>
+    <button class="hantar" onclick="hantar()">Hantar Jawapan</button>
+    <div class="ralat" id="ralat"></div>
+  </section>
+
+  <section id="senarai" class="reveal">
+    <div class="rule-head"><span><b>02</b> — Senarai Jemputan</span></div>
+    <div class="senarai" id="senarai"></div>
+  </section>
+
+  <section id="ringkasan" class="reveal">
+    <div class="rule-head"><span><b>03</b> — Jumlah Keseluruhan</span></div>
+    <div class="jumlah">
+      <div class="angka" id="jumlah">0</div>
+      <div class="kata">orang dijangka hadir pada majlis ini</div>
+    </div>
+    <div class="pecahan">
+      <div class="kotak h"><div class="bil" id="bilHadir">0</div><div class="p">Hadir</div></div>
+      <div class="kotak t"><div class="bil" id="bilTidak">0</div><div class="p">Tidak Hadir</div></div>
+    </div>
+    <div class="nota-kaki"><span>DATA CONTOH SAHAJA</span><span>TIADA DISIMPAN · JPEG-DEMO</span></div>
+  </section>
+
+</div>
+
+<script>
+  // Contoh data — rekaan semata-mata
+  let tamu = [
+    { nama: "Encik Rahim bin Omar",     jawab: "hadir", orang: 4 },
+    { nama: "Puan Aminah binti Hassan", jawab: "hadir", orang: 2 },
+    { nama: "Tan Wei Ling",             jawab: "tidak", orang: 0 }
+  ];
+
+  let jawabSaya = null;
+  let bilangan = 1;
+
+  function pilih(j) {
+    jawabSaya = j;
+    document.getElementById("bHadir").className = j === "hadir" ? "sel-hadir" : "";
+    document.getElementById("bTidak").className = j === "tidak" ? "sel-tidak" : "";
+    if (j === "tidak") { bilangan = 0; tunjukBilangan(); }
+    else if (bilangan === 0) { bilangan = 1; tunjukBilangan(); }
+    document.getElementById("ralat").textContent = "";
+  }
+
+  function langkah(d) {
+    if (jawabSaya === "tidak") return;
+    bilangan = Math.min(20, Math.max(1, bilangan + d));
+    const el = document.getElementById("bilang");
+    el.classList.add("tick");
+    setTimeout(() => el.classList.remove("tick"), 180);
+    tunjukBilangan();
+  }
+
+  function tunjukBilangan() {
+    document.getElementById("bilang").textContent = bilangan;
+  }
+
+  function lukisSenarai(baru) {
+    const d = document.getElementById("senarai");
+    d.innerHTML = "";
+    tamu.forEach((t, i) => {
+      const el = document.createElement("div");
+      el.className = "tamu" + (i === baru ? " masuk" : "");
+      const nota = t.jawab === "hadir" ? t.orang + " orang · sekeluarga" : "takziah, lain kali";
+      el.innerHTML =
+        '<div class="nombor">' + String(i + 1).padStart(2, "0") + '</div>' +
+        '<div class="siapa"><div class="nama">' + elX(t.nama) + '</div>' +
+        '<div class="nota">' + nota + '</div></div>' +
+        '<div class="jawab ' + t.jawab + '">' + (t.jawab === "hadir" ? "HADIR" : "TAK HADIR") + '</div>';
+      d.appendChild(el);
+    });
+  }
+
+  function elX(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+  function lukisRingkasan() {
+    const hadir = tamu.filter(t => t.jawab === "hadir");
+    const jumlah = hadir.reduce((s, t) => s + t.orang, 0);
+    const angka = document.getElementById("jumlah");
+    angka.textContent = jumlah;
+    angka.classList.add("lonjak");
+    setTimeout(() => angka.classList.remove("lonjak"), 220);
+    document.getElementById("bilHadir").textContent = hadir.length;
+    document.getElementById("bilTidak").textContent = tamu.length - hadir.length;
+  }
+
+  function hantar() {
+    const nama = document.getElementById("nama").value.trim();
+    const ralat = document.getElementById("ralat");
+    if (!nama)      { ralat.textContent = "Sila tulis nama anda dahulu."; return; }
+    if (!jawabSaya) { ralat.textContent = "Sila pilih Hadir atau Tidak."; return; }
+    tamu.unshift({ nama, jawab: jawabSaya, orang: jawabSaya === "hadir" ? bilangan : 0 });
+    lukisSenarai(0);
+    lukisRingkasan();
+    document.getElementById("nama").value = "";
+    jawabSaya = null; bilangan = 1;
+    tunjukBilangan();
+    document.getElementById("bHadir").className = "";
+    document.getElementById("bTidak").className = "";
+    ralat.textContent = "Terima kasih — jawapan anda dicatat di atas.";
+    document.getElementById("senarai").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  // Gerak masuk bersusun
+  document.querySelectorAll(".reveal").forEach((el, i) =>
+    setTimeout(() => el.classList.add("papar"), 120 + i * 160));
+
+  lukisSenarai();
+  lukisRingkasan();
+  tunjukBilangan();
+</script>
+</body>
+</html>
