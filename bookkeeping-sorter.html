@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookkeeping Sorter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  :root{
+    --ink:#1b1140;
+    --paper:#fff8ef;
+    --hot:#ff4d6d;
+    --sunny:#ffb703;
+    --leaf:#06d6a0;
+    --sky:#3a86ff;
+    --grape:#8338ec;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI","Poppins","Trebuchet MS",system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  header{
+    background:linear-gradient(120deg,var(--hot),var(--grape) 55%,var(--sky));
+    color:#fff;
+    padding:36px 20px 42px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  header .blob{
+    position:absolute;border-radius:50%;opacity:.18;pointer-events:none;
+  }
+  header .b1{width:220px;height:220px;background:#fff;top:-60px;left:-50px}
+  header .b2{width:160px;height:160px;background:#fff;bottom:-70px;right:8%}
+  header h1{font-size:2.2rem;font-weight:800;letter-spacing:.5px}
+  header p{opacity:.92;margin-top:6px;font-size:1.05rem}
+  main{
+    max-width:900px;
+    margin:-26px auto 60px;
+    padding:0 16px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+  }
+  section{
+    background:var(--card);
+    border-radius:18px;
+    box-shadow:0 10px 26px rgba(27,17,64,.12);
+    padding:26px;
+    border-top:8px solid var(--sky);
+    will-change:transform,opacity;
+  }
+  section.paste{border-top-color:var(--hot)}
+  section.review{border-top-color:var(--sunny)}
+  section.summary{border-top-color:var(--leaf)}
+  h2{font-size:1.35rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+  .step{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:32px;height:32px;border-radius:50%;
+    background:var(--ink);color:#fff;font-size:1rem;font-weight:700;flex:none;
+  }
+  .sub{color:#6b6480;margin-bottom:16px;font-size:.95rem}
+  .hint{
+    background:#fdf1f4;border:1px dashed var(--hot);
+    border-radius:10px;padding:10px 14px;font-size:.9rem;margin-bottom:12px;
+  }
+  textarea{
+    width:100%;min-height:170px;resize:vertical;
+    font-family:"Consolas","Courier New",monospace;font-size:.95rem;
+    border:2px solid #e4ddf2;border-radius:12px;padding:14px;
+    background:#fffdf8;color:var(--ink);
+    transition:border-color .2s, box-shadow .2s;
+  }
+  textarea:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 4px rgba(255,77,109,.12)}
+  textarea.pulse-ok{border-color:var(--leaf);box-shadow:0 0 0 4px rgba(6,214,160,.18)}
+  .actions{margin-top:12px;display:flex;gap:12px;flex-wrap:wrap}
+  button{
+    font:inherit;font-weight:700;border:none;border-radius:999px;
+    padding:11px 22px;cursor:pointer;
+  }
+  .btn-primary{background:var(--hot);color:#fff}
+  .btn-ghost{background:#fff;color:var(--ink);border:2px solid var(--ink);padding:9px 20px}
+  .btn-ghost:hover{background:var(--ink);color:#fff}
+  table{width:100%;border-collapse:collapse}
+  th{
+    text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;
+    color:#6b6480;padding:8px 10px;border-bottom:2px solid #eee6f8;
+  }
+  td{padding:10px;border-bottom:1px solid #f2edfa;vertical-align:middle}
+  tr.tx-row{will-change:transform,opacity}
+  tr.row-changed td{background:#fff8e0}
+  .amount{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  .amount.credit{color:#0a8f6b}
+  .cat-btn{
+    border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:700;
+    background:#f1ecfb;color:var(--ink);border:2px solid transparent;
+    transition:background-color .25s,color .25s;
+  }
+  .cat-btn:hover{border-color:var(--grape)}
+  .cat-btn.active{color:#fff}
+  .cat-btn.active[data-cat="Food & Drinks"]{background:var(--hot)}
+  .cat-btn.active[data-cat="Transport"]{background:var(--sky)}
+  .cat-btn.active[data-cat="Shopping"]{background:var(--grape)}
+  .cat-btn.active[data-cat="Bills & Utilities"]{background:#c98a00}
+  .cat-btn.active[data-cat="Salary & Income"]{background:#0a8f6b}
+  .cat-btn.active[data-cat="Other"]{background:#5c5470}
+  .cat-row{display:flex;gap:6px;flex-wrap:wrap}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+  .stat{
+    border-radius:14px;padding:16px;color:#fff;text-align:center;
+    will-change:transform,opacity;
+  }
+  .stat .big{font-size:1.9rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .stat .label{font-size:.82rem;text-transform:uppercase;letter-spacing:1px;opacity:.9}
+  .stat.s1{background:var(--sky)}
+  .stat.s2{background:var(--hot)}
+  .stat.s3{background:#0a8f6b}
+  .bar-item{margin-bottom:14px}
+  .bar-head{display:flex;justify-content:space-between;font-size:.92rem;font-weight:600;margin-bottom:5px}
+  .bar-track{height:14px;background:#f1ecfb;border-radius:999px;overflow:hidden}
+  .bar-fill{height:100%;width:0;border-radius:999px}
+  .empty-note{color:#6b6480;font-style:italic;padding:8px 2px}
+  footer{text-align:center;color:#6b6480;font-size:.85rem;padding-bottom:40px}
+
+  /* Fallback when GSAP is unavailable: still get motion, just simpler */
+  .no-gsap header h1,.no-gsap header p{animation:fallIn .6s ease both}
+  .no-gsap section{animation:riseIn .6s ease both}
+  .no-gsap section.review{animation-delay:.15s}
+  .no-gsap section.summary{animation-delay:.3s}
+  .no-gsap tr.tx-row{animation:rowIn .4s ease both}
+  @keyframes fallIn{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+  @keyframes riseIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+  @keyframes rowIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <h1>💰 Bookkeeping Sorter</h1>
+  <p>Paste your bank lines, check the categories, and get an instant summary.</p>
+</header>
+
+<main>
+
+  <section class="paste" id="section-paste">
+    <h2><span class="step">1</span> Paste Transactions</h2>
+    <p class="sub">Drop your bank lines in the box below — one transaction per line.</p>
+    <div class="hint">Format: <strong>Description, Amount</strong> — for example <em>Grab KLCC, 18.50</em> or <em>Salary MYSALES, 4200.00</em>. Lines are turned into transactions as soon as you click the button.</div>
+    <textarea id="pasteBox" spellcheck="false">Seven Tea Ipoh, 9.80
+Tenaga Nasional Bill, 186.40
+Salary MYSALES SDN BHD, 4200.00</textarea>
+    <div class="actions">
+      <button class="btn-primary" id="parseBtn">Sort These Lines</button>
+      <button class="btn-ghost" id="resetBtn">Restore Examples</button>
+    </div>
+  </section>
+
+  <section class="review" id="section-review">
+    <h2><span class="step">2</span> Category Review</h2>
+    <p class="sub">Each line gets a suggested category. Tap a different chip to switch it.</p>
+    <table>
+      <thead>
+        <tr><th>Description</th><th>Amount (RM)</th><th>Category</th></tr>
+      </thead>
+      <tbody id="reviewBody"></tbody>
+    </table>
+    <p class="empty-note" id="reviewEmpty" hidden>No transactions yet — paste some lines in step 1.</p>
+  </section>
+
+  <section class="summary" id="section-summary">
+    <h2><span class="step">3</span> Summary</h2>
+    <p class="sub">A quick look at your lines, updating live as you change categories.</p>
+    <div class="summary-grid">
+      <div class="stat s1"><div class="big" id="statCount">0</div><div class="label">Transactions</div></div>
+      <div class="stat s2"><div class="big" id="statSpend">RM 0.00</div><div class="label">Total Spending</div></div>
+      <div class="stat s3"><div class="big" id="statIncome">RM 0.00</div><div class="label">Total Income</div></div>
+    </div>
+    <div id="catBars"></div>
+    <p class="empty-note" id="summaryEmpty" hidden>Nothing to summarise yet.</p>
+  </section>
+
+</main>
+
+<footer>Everything happens on this screen — nothing is saved between visits.</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var HAS_GSAP = typeof gsap !== "undefined";
+  if (!HAS_GSAP) document.body.classList.add("no-gsap");
+
+  var CATEGORIES = ["Food & Drinks","Transport","Shopping","Bills & Utilities","Salary & Income","Other"];
+
+  var SAMPLE_LINES = [
+    "Seven Tea Ipoh, 9.80",
+    "Tenaga Nasional Bill, 186.40",
+    "Salary MYSALES SDN BHD, 4200.00"
+  ];
+
+  var RULES = [
+    { words:["tea","kopi","mamak","rest","cafe","mcd","kfc","pizza","burger","nasi","food","starbucks","seven tea","warong","restaurant"], cat:"Food & Drinks" },
+    { words:["grab","shell","petron","petrol","toll","touch n go","touch 'n go","rapid"," parking","bus","train","maxis","celcom"], cat:"Transport" },
+    { words:["shopee","lazada","zara","uniqlo","zalora","zus","shop","store","sendayu"], cat:"Shopping" },
+    { words:["tnb","tenaga","unifi","digi","water","bill","streamyx","indah water","telekom","kwsp","insurance"], cat:"Bills & Utilities" },
+    { words:["salary","gaji","payroll","income","dividend","refund"], cat:"Salary & Income" }
+  ];
+
+  var CAT_COLOR = {
+    "Food & Drinks":"var(--hot)",
+    "Transport":"var(--sky)",
+    "Shopping":"var(--grape)",
+    "Bills & Utilities":"#c98a00",
+    "Salary & Income":"#0a8f6b",
+    "Other":"#5c5470"
+  };
+
+  var transactions = []; // {id, desc, amount, cat}
+  var nextId = 1;
+
+  var pasteBox = document.getElementById("pasteBox");
+  var reviewBody = document.getElementById("reviewBody");
+  var reviewEmpty = document.getElementById("reviewEmpty");
+  var catBars = document.getElementById("catBars");
+  var summaryEmpty = document.getElementById("summaryEmpty");
+  var statCount = document.getElementById("statCount");
+  var statSpend = document.getElementById("statSpend");
+  var statIncome = document.getElementById("statIncome");
+  var statCards = document.querySelectorAll(".stat");
+
+  /* ---------- parsing ---------- */
+
+  function suggestCat(desc){
+    var d = desc.toLowerCase();
+    for (var i=0;i<RULES.length;i++){
+      for (var j=0;j<RULES[i].words.length;j++){
+        if (d.indexOf(RULES[i].words[j]) !== -1) return RULES[i].cat;
+      }
+    }
+    return "Other";
+  }
+
+  function parseLines(text){
+    var out = [];
+    var lines = text.split(/\r?\n/);
+    for (var i=0;i<lines.length;i++){
+      var line = lines[i].trim();
+      if (!line) continue;
+      var m = line.match(/^(.*?)[,;\t]\s*(-?[\d,]+(?:\.\d+)?)$/);
+      var desc, amount;
+      if (m){
+        desc = m[1].trim();
+        amount = parseFloat(m[2].replace(/,/g,""));
+      } else {
+        var nums = line.match(/(-?[\d,]+(?:\.\d+)?)\s*$/);
+        if (nums){
+          amount = parseFloat(nums[1].replace(/,/g,""));
+          desc = line.slice(0, line.length - nums[0].length).trim().replace(/[,\-]+$/,"").trim();
+        } else { desc = line; amount = NaN; }
+      }
+      if (!desc) continue;
+      if (isNaN(amount)) amount = 0;
+      out.push({ desc:desc, amount:amount });
+    }
+    return out;
+  }
+
+  function fmt(n){
+    var s = Math.abs(n).toFixed(2);
+    return (n < 0 ? "-RM " : "RM ") + s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  /* ---------- rendering ---------- */
+
+  function chip(cat, txId, active){
+    return '<button class="cat-btn'+(active ? " active" : "")+'" data-cat="'+cat+'" data-tx="'+txId+'">'+cat+'</button>';
+  }
+
+  function buildReview(){
+    reviewBody.innerHTML = transactions.map(function(tx){
+      var chips = CATEGORIES.map(function(c){
+        return chip(c, tx.id, tx.cat === c);
+      }).join("");
+      return '<tr class="tx-row" data-tx="'+tx.id+'"><td>'+escapeHtml(tx.desc)+'</td>'+
+        '<td class="amount '+(tx.amount >= 0 ? "credit" : "")+'">'+fmt(tx.amount)+'</td>'+
+        '<td><div class="cat-row">'+chips+'</div></td></tr>';
+    }).join("");
+    reviewEmpty.hidden = transactions.length > 0;
+  }
+
+  /* Update chips + row highlight for one transaction without rebuilding the table */
+  function updateRow(tx, changed){
+    var row = reviewBody.querySelector('tr.tx-row[data-tx="'+tx.id+'"]');
+    if (!row) return;
+    row.querySelectorAll(".cat-btn").forEach(function(btn){
+      btn.classList.toggle("active", btn.dataset.cat === tx.cat);
+    });
+    row.classList.toggle("row-changed", !!changed);
+  }
+
+  /* ---------- summary ---------- */
+
+  function computeSummary(){
+    var spend = 0, income = 0;
+    var byCat = {};
+    CATEGORIES.forEach(function(c){ byCat[c] = 0; });
+    transactions.forEach(function(tx){
+      if (tx.amount >= 0 && tx.cat === "Salary & Income"){
+        income += tx.amount;
+      } else if (tx.amount < 0){
+        spend += -tx.amount;
+        byCat[tx.cat] += -tx.amount;
+      } else {
+        spend += tx.amount;
+        byCat[tx.cat] += tx.amount;
+      }
+    });
+    return { spend:spend, income:income, byCat:byCat, count:transactions.length };
+  }
+
+  function buildBars(byCat){
+    var max = 0;
+    CATEGORIES.forEach(function(c){ if (byCat[c] > max) max = byCat[c]; });
+    catBars.innerHTML = CATEGORIES.map(function(c){
+      var pct = max > 0 ? (byCat[c] / max * 100) : 0;
+      return '<div class="bar-item" data-cat="'+c+'" data-width="'+pct.toFixed(1)+'">'+
+        '<div class="bar-head"><span>'+c+'</span><span class="bar-amt">'+fmt(byCat[c])+'</span></div>'+
+        '<div class="bar-track"><div class="bar-fill" style="background:'+CAT_COLOR[c]+'"></div></div></div>';
+    }).join("");
+    summaryEmpty.hidden = transactions.length > 0;
+  }
+
+  function animateSummary(prev){
+    prev = prev || { spend:0, income:0, byCat:{}, count:0 };
+    var s = computeSummary();
+
+    buildBars(s.byCat);
+    var fills = catBars.querySelectorAll(".bar-fill");
+    var items = catBars.querySelectorAll(".bar-item");
+
+    if (HAS_GSAP){
+      gsap.to(statCount, { duration:.6, innerText:s.count, snap:{ innerText:1 }, ease:"power2.out" });
+      tweenMoney(statSpend, prev.spend, s.spend);
+      tweenMoney(statIncome, prev.income, s.income);
+
+      gsap.fromTo(fills,
+        { width:0 },
+        { width:function(i, el){ return items[i].dataset.width + "%"; },
+          duration:.8, ease:"power3.out", stagger:.06, clearProps:"width" });
+      gsap.set(fills, { width:function(i, el){ return items[i].dataset.width + "%"; } });
+
+      gsap.fromTo(items,
+        { x:-14, opacity:0 },
+        { x:0, opacity:1, duration:.45, ease:"power2.out", stagger:.05, clearProps:"all" });
+      gsap.set(items, { x:0, opacity:1 });
+
+      gsap.fromTo(statCards,
+        { y:10, scale:.97 },
+        { y:0, scale:1, duration:.4, ease:"back.out(2)", stagger:.07, clearProps:"all" });
+      gsap.set(statCards, { y:0, scale:1 });
+    } else {
+      statCount.textContent = s.count;
+      statSpend.textContent = fmt(s.spend);
+      statIncome.textContent = fmt(s.income);
+      fills.forEach(function(f, i){ f.style.width = items[i].dataset.width + "%"; });
+    }
+  }
+
+  function tweenMoney(el, from, to){
+    var obj = { v:from };
+    gsap.to(obj, {
+      v:to, duration:.6, ease:"power2.out",
+      onUpdate:function(){ el.textContent = fmt(obj.v); }
+    });
+  }
+
+  /* ---------- motion helpers ---------- */
+
+  function animateIntro(){
+    if (!HAS_GSAP) return;
+    var tl = gsap.timeline({ defaults:{ ease:"power3.out" } });
+    tl.from("header h1", { y:-40, opacity:0, duration:.7 })
+      .from("header p", { y:-16, opacity:0, duration:.5 }, "-=.35")
+      .from("header .blob", { scale:0, duration:.9, ease:"back.out(1.6)", stagger:.15 }, 0)
+      .from("#section-paste", { y:50, opacity:0, duration:.6 }, "-=.3")
+      .from("#section-review", { y:50, opacity:0, duration:.6 }, "-=.45")
+      .from("#section-summary", { y:50, opacity:0, duration:.6 }, "-=.45")
+      .from("#section-paste .hint", { scale:.95, opacity:0, duration:.4 }, "-=.3")
+      .from(".actions button", { y:14, opacity:0, duration:.35, stagger:.1 }, "-=.3");
+  }
+
+  function animateNewRows(){
+    var rows = reviewBody.querySelectorAll("tr.tx-row");
+    if (HAS_GSAP){
+      gsap.fromTo(rows,
+        { x:-24, opacity:0 },
+        { x:0, opacity:1, duration:.4, ease:"power2.out", stagger:.08, clearProps:"all" });
+      gsap.set(rows, { x:0, opacity:1 });
+      gsap.from("#section-review h2, #section-review .sub",
+        { y:-10, opacity:0, duration:.35, ease:"power2.out" });
+    }
+  }
+
+  function animateChipSwitch(btn, row){
+    if (!HAS_GSAP) return;
+    gsap.fromTo(btn,
+      { scale:.7 },
+      { scale:1, duration:.45, ease:"elastic.out(1.4,0.4)", clearProps:"scale" });
+    gsap.fromTo(row,
+      { backgroundColor:"rgba(255,183,3,.35)" },
+      { backgroundColor:"rgba(255,248,224,1)", duration:.9, ease:"power2.out" });
+    gsap.fromTo(row.querySelectorAll(".amount"),
+      { scale:1.12, color:"#c98a00" },
+      { scale:1, color:row.classList.contains("credit") ? "#0a8f6b" : "#1b1140",
+        duration:.5, ease:"power2.out", clearProps:"all" });
+  }
+
+  function pulsePasteBox(){
+    pasteBox.classList.add("pulse-ok");
+    if (HAS_GSAP){
+      gsap.fromTo(pasteBox, { scale:.985 }, { scale:1, duration:.4, ease:"power2.out", clearProps:"scale" });
+    }
+    setTimeout(function(){ pasteBox.classList.remove("pulse-ok"); }, 900);
+  }
+
+  function shakePasteBox(){
+    if (HAS_GSAP){
+      gsap.fromTo(pasteBox,
+        { x:0 },
+        { x:8, duration:.07, repeat:5, yoyo:true, ease:"none", clearProps:"x" });
+    }
+  }
+
+  /* ---------- wiring ---------- */
+
+  reviewBody.addEventListener("click", function(e){
+    var btn = e.target.closest(".cat-btn");
+    if (!btn) return;
+    var tx = transactions.find(function(t){ return t.id === Number(btn.dataset.tx); });
+    if (!tx || tx.cat === btn.dataset.cat) return;
+    var prev = computeSummary();
+    tx.cat = btn.dataset.cat;
+    updateRow(tx, true);
+    animateChipSwitch(btn, reviewBody.querySelector('tr.tx-row[data-tx="'+tx.id+'"]'));
+    animateSummary(prev);
+  });
+
+  document.getElementById("parseBtn").addEventListener("click", function(){
+    var parsed = parseLines(pasteBox.value);
+    if (parsed.length === 0){ shakePasteBox(); pasteBox.focus(); return; }
+    transactions = parsed.map(function(p){
+      return { id:nextId++, desc:p.desc, amount:p.amount, cat:suggestCat(p.desc) };
+    });
+    buildReview();
+    pulsePasteBox();
+    animateNewRows();
+    animateSummary();
+    var rev = document.getElementById("section-review");
+    rev.scrollIntoView({ behavior:"smooth", block:"start" });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    pasteBox.value = SAMPLE_LINES.join("\n");
+    loadSample(true);
+    pulsePasteBox();
+  });
+
+  function loadSample(animate){
+    transactions = SAMPLE_LINES.map(function(l){
+      var p = parseLines(l)[0];
+      return { id:nextId++, desc:p.desc, amount:p.amount, cat:suggestCat(p.desc) };
+    });
+    buildReview();
+    if (animate) animateNewRows();
+    animateSummary();
+  }
+
+  /* ---------- boot ---------- */
+
+  animateIntro();
+  loadSample(false);
+
+})();
+</script>
+
+</body>
+</html>
